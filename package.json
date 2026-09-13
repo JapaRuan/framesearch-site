@@ -10,8 +10,10 @@
     "compress-portfolio": "node scripts/compress-portfolio.mjs"
   },
   "dependencies": {
+    "@google-cloud/firestore": "^9.1.0",
     "express": "^4.19.2",
     "express-rate-limit": "^7.4.0",
+    "firebase-admin": "^14.4.0",
     "helmet": "^7.1.0"
   }
 }

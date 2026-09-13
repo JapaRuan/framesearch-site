@@ -10,6 +10,13 @@
 
 const UNLOCK_KEY = "fs_portfolio_unlocked";
 
+// Precisa existir antes da IIFE do gate: para quem já tem o flag de desbloqueio salvo
+// (localStorage), unlock() -> initCarousel() roda de forma SÍNCRONA durante o parse
+// inicial do script, ou seja, antes de qualquer `let` declarado mais abaixo no arquivo
+// executar. Declarar aqui em cima evita cair na temporal dead zone (bug real encontrado
+// em teste: "Cannot access 'carouselInitialized' before initialization").
+let carouselInitialized = false;
+
 // ---------- Header: scroll state + specular reagindo ao cursor ----------
 (function headerGlass() {
   const header = document.getElementById("site-header");
@@ -174,8 +181,6 @@ function validarTelefoneClient(tel) {
 })();
 
 // ---------- Carrossel coverflow com lazy-load ----------
-let carouselInitialized = false;
-
 async function initCarousel() {
   if (carouselInitialized) return;
   carouselInitialized = true;

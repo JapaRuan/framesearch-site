@@ -41,7 +41,7 @@ const leadLimiter = rateLimit({
   message: { ok: false, erro: "Muitas tentativas. Tente novamente em alguns minutos." },
 });
 
-app.post("/api/leads", leadLimiter, (req, res) => {
+app.post("/api/leads", leadLimiter, async (req, res) => {
   const { nome, telefone } = req.body || {};
 
   const nomeCheck = validarNome(nome);
@@ -55,7 +55,7 @@ app.post("/api/leads", leadLimiter, (req, res) => {
   }
 
   try {
-    const lead = addLead({
+    const lead = await addLead({
       nome: nomeCheck.normalizado,
       telefoneNormalizado: telefoneCheck.normalizado,
       telefoneFormatado: String(telefone).trim(),
@@ -70,13 +70,19 @@ app.post("/api/leads", leadLimiter, (req, res) => {
 });
 
 // Exportação simples para o operador puxar os leads (uso manual/CRM), protegida por chave de ambiente.
-app.get("/api/leads/export.csv", (req, res) => {
+app.get("/api/leads/export.csv", async (req, res) => {
   if (!ADMIN_EXPORT_KEY || req.query.key !== ADMIN_EXPORT_KEY) {
     return res.status(403).json({ ok: false, erro: "Acesso negado." });
   }
-  res.setHeader("Content-Type", "text/csv; charset=utf-8");
-  res.setHeader("Content-Disposition", "attachment; filename=leads.csv");
-  res.send(exportCsv());
+  try {
+    const csv = await exportCsv();
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", "attachment; filename=leads.csv");
+    res.send(csv);
+  } catch (err) {
+    console.error("Falha ao exportar leads:", err);
+    res.status(500).json({ ok: false, erro: "Não foi possível exportar os leads agora." });
+  }
 });
 
 app.get("/health", (req, res) => res.json({ ok: true }));

@@ -37,7 +37,8 @@ server/
   index.js         Express app (rotas, segurança, static)
   validators.js     validação de nome e telefone BR
   leadsStore.js     persistência de leads (ver decisão abaixo)
-  data/leads.jsonl  leads salvos localmente (gitignored)
+  firebase-service-account.json  credencial Admin SDK (gitignored, só dev local)
+  data/leads.jsonl  fallback local se não houver credencial do Firebase (gitignored)
 scripts/
   compress-portfolio.mjs   comprime o acervo real de H:\...\Portfólio - Propósta
   portfolio-manifest.json  lista fonte -> slug/categoria (edite aqui se o acervo mudar)
@@ -47,35 +48,56 @@ scripts/
 
 O destino de produção é Render, plano free. Nesse plano **o disco é efêmero**: some a
 cada redeploy. Isso vale igual para SQLite, arquivo JSON, ou qualquer outro arquivo
-gravado localmente — não é um problema específico de SQLite.
+gravado localmente — não é um problema específico de SQLite. Por isso a persistência
+principal passou a ser **Firestore** (Firebase), que não depende do disco do Render.
 
 Decisão tomada no nível de código (infraestrutura final continua sendo decisão do Dev
 Master/operador na hora do deploy):
 
-1. **Armazenamento em JSON Lines** (`server/data/leads.jsonl`), um lead por linha, schema
-   fixo (ver comentário no topo de `server/leadsStore.js`). Não usei SQLite/
-   `better-sqlite3` porque a compilação do binário nativo desse pacote falhou de forma
-   consistente ao instalar direto na pasta sincronizada do Google Drive nesta máquina de
-   desenvolvimento — o mesmo erro (`EBADF` do npm) aconteceu até com dependências 100% em
-   JS, então não é um problema do SQLite em si, mas ele adiciona uma trava extra
-   (compilação nativa) que dependências puras não têm. JSON Lines evita essa dependência
-   nativa tanto em dev quanto em produção.
-2. O schema já é "achatado" pensando em virar CRM depois: `id`, `nome`, `telefone`
-   (normalizado com DDI), `telefone_formatado` (como a pessoa digitou), `origem`,
-   `user_agent`, `ip_hash` (nunca IP cru — LGPD), `criado_em`, `status` (`novo` como
-   primeiro estágio de um pipeline `novo -> contatado -> reunião -> cliente -> perdido`).
-   Migrar para SQLite/Postgres depois é só reimportar este arquivo linha a linha.
+1. **Armazenamento principal em Firestore**, coleção `leads`, via Admin SDK
+   (`firebase-admin` + `@google-cloud/firestore`). Schema (ver comentário no topo de
+   `server/leadsStore.js`): `id`, `nome`, `telefone` (normalizado com DDI),
+   `telefone_formatado` (como a pessoa digitou), `origem`, `user_agent`, `ip_hash` (nunca
+   IP cru — LGPD), `criado_em`, `status` (`novo` como primeiro estágio de um pipeline
+   `novo -> contatado -> reunião -> cliente -> perdido`).
+2. Credencial (Admin SDK), nessa ordem: variável de ambiente
+   `FIREBASE_SERVICE_ACCOUNT` (produção, no Render) → arquivo local
+   `server/firebase-service-account.json` (dev, gitignored) → se nenhuma existir, cai
+   para **armazenamento local em JSON Lines** (`server/data/leads.jsonl`), só para não
+   travar quem rodar o projeto sem a credencial em mãos. Esse modo local avisa alto no
+   console porque tem o mesmo problema de disco efêmero que motivou a troca.
 3. Endpoint `GET /api/leads/export.csv?key=...` (protegido por `ADMIN_EXPORT_KEY`) para o
-   operador puxar os leads manualmente enquanto não existir uma sincronização automática.
+   operador puxar os leads manualmente, agora lendo do Firestore.
 
-**O que fica pendente para o Dev Master decidir na hora do deploy real** (isso é escolha
-de infraestrutura, fora do escopo do code-master):
+**Pendência real de infraestrutura, confirmada em DUAS sessões diferentes via chamada
+direta à API do Firestore (não é suposição, e não é sobre deploy pendente no Render)**: o
+projeto Firebase `leads-framesearch` ainda **não tem nenhum banco Firestore criado** — a
+chamada `GET /v1/projects/leads-framesearch/databases` retornou lista vazia nas duas
+vezes, e a service account não tem permissão para criar o banco sozinha (403 ao tentar).
+Ou seja, falta o operador entrar no Console do Firebase e criar o banco Firestore de fato
+(modo Nativo, região `southamerica-east1`) antes de qualquer escrita funcionar, tanto em
+produção quanto em dev local. Sem esse passo, o código cai/erra ao tentar gravar (não cai
+silenciosamente para o modo local, porque a credencial existe e é válida — só o banco em
+si que não existe). Testado de novo agora: `POST /api/leads` local com a credencial real
+retorna 500 com `5 NOT_FOUND` do Firestore, exatamente por causa disso.
 
-- Contratar **disco persistente** no Render (mais simples, mantém este código como está,
-  só aponta `LEADS_DB_DIR` para o volume montado); **ou**
-- Trocar `server/leadsStore.js` por um client de **Google Sheets** (webhook/Apps Script)
-  sincronizando para o Drive do operador; **ou**
-- Trocar por um banco gerenciado externo (Turso, Postgres gerenciado, etc).
+**Nota sobre um link enviado por engano**: se alguém mandar a documentação de "Firebase
+Data Connect" (SQL/Postgres via GraphQL, focado em SDK client-side) achando que é sobre
+isso, não é — é um produto Firebase diferente, mais pesado, sem exemplo de uso a partir de
+um backend Node/Express, e não serve bem para um formulário simples de lead. A decisão
+aqui continua sendo **Firestore** (mais simples, já implementado, resolve o problema real
+de disco efêmero). O que falta não é trocar de tecnologia — é o passo de criação do banco
+no Console, descrito acima.
+
+**O que fica pendente para o Dev Master/operador decidir** (fora do escopo do
+code-master):
+
+- Criar o banco Firestore no Console do Firebase (passo acima, bloqueante).
+- Configurar `FIREBASE_SERVICE_ACCOUNT` no Render com o conteúdo do JSON da service
+  account como uma linha só.
+- Node no Render: `@google-cloud/firestore` declara `engines.node >= 22`. Funcionou em
+  teste local nesta sessão em Node 18.16.1 (só avisa, não impede), mas o ideal é o Render
+  rodar Node 22+ para ficar dentro do que o pacote suporta oficialmente.
 
 A superfície pública do módulo (`addLead`, `listLeads`, `exportCsv`) foi desenhada para
 tornar essa troca barata — não precisa mexer em `server/index.js`.
@@ -134,3 +156,41 @@ Animações After Effects, já descontando o par .mov/.mp4 duplicado da peça "A
   real (Puppeteer preenchendo o formulário e clicando em "Desbloquear"): confirma que os
   25 cards renderizam, o card ativo é marcado, e a flag de desbloqueio é salva.
 - Todos os arquivos `.js` passaram por `node --check` (sem erro de sintaxe).
+
+## Sessão de 2026-09-13 (parte 2) — bugs reais de feedback do operador, corrigidos e reconfirmados
+
+- **Carrossel com card central preto (bug crítico reportado com screenshot)**: causa raiz
+  encontrada com Puppeteer capturando console real (não só checando classe CSS como o
+  teste anterior fazia) — `video` e `img.poster` dentro de `.carousel-card` não tinham
+  `position: absolute`, então ficavam empilhados no fluxo normal em vez de sobrepostos; o
+  vídeo real ficava abaixo do poster e cortado pelo `overflow: hidden` do card. Corrigido
+  em `public/css/styles.css` (`.carousel-card video`/`img.poster` agora com
+  `position: absolute; inset: 0` e `z-index` explícito para poster/play-btn/título ficarem
+  por cima). Reconfirmado rodando o site local de verdade: vídeo real tocando
+  (`readyState: 4`, frames diferentes entre screenshots) no card ativo, do primeiro ao
+  último dos 25 cards, arrastando programaticamente até `scrollLeft` chegar no fim do
+  `scrollWidth`.
+- **Bug real de JavaScript encontrado no mesmo teste** (não fazia parte do que foi
+  reportado, mas travava o carrossel por completo para quem já tinha o portfólio
+  desbloqueado — ex.: qualquer visitante recorrente): `Cannot access 'carouselInitialized'
+  before initialization`. Causa: a `IIFE` do gate roda `unlock() -> initCarousel()` de
+  forma síncrona durante o parse inicial do script quando o `localStorage` já tem o flag
+  de desbloqueio, e isso acontecia antes da linha `let carouselInitialized = false;` (mais
+  abaixo no arquivo) executar — temporal dead zone. Corrigido movendo essa declaração para
+  o topo de `public/js/main.js`. Esse é provavelmente o motivo real do "chega um momento
+  que não tem mais como continuar vendo" relatado — reconfirmado sem esse erro no console
+  depois da correção.
+- **Header**: símbolo (`logo-simbolo.png`) aumentado de 34px para 52px de altura
+  (40px no breakpoint mobile) e centralizado de verdade com `position: absolute` +
+  `translate(-50%,-50%)` dentro do `.header-inner`, em vez de depender do fluxo flex.
+  Reconfirmado medindo `getBoundingClientRect()`: centro do logo coincide com o centro do
+  viewport (`logoCenterX === viewportCenterX`) tanto em 1440px quanto em 390px de largura,
+  sem sobreposição com a nav em nenhum dos dois.
+- **Favicon**: trocado de `logo-mono-preto.png` (fundo branco sólido, sem alpha) para
+  `logo-simbolo.png` — confirmado com leitura do chunk `IHDR` do PNG que é RGBA real
+  (`colorType: 6`), 1200×1200, quadrado.
+- **Conteúdo**: adicionada seção `#servicos` (Fotografia, Filmagem, Edição, Design,
+  Tráfego pago, Programação — lista real já usada em outras peças da marca, sem número ou
+  estatística inventada) e expandido o texto de "Sobre" com mais profundidade sobre como o
+  time multidisciplinar trabalha junto (sem inventar dado novo sobre a empresa). Link
+  "Serviços" adicionado à nav do header.
