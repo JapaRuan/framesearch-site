@@ -5,6 +5,68 @@
    para o colorista-master".
    ===================================================== */
 
+/* ---------- Tipografia de headline ----------
+   3 candidatas testadas lado a lado (comparação visual feita nesta sessão,
+   screenshots em desktop e mobile) para substituir a fonte fraca usada antes
+   em h1/h2: Fraunces (serifada contemporânea), Bricolage Grotesque (sans
+   editorial) e Instrument Serif (serifada fina). Aplicadas só em
+   headline/títulos — o corpo de texto continua na pilha neutra
+   (Helvetica/Segoe UI) já usada em body, para manter hierarquia real de peso
+   entre os dois.
+
+   Decisão (code-master): FRAUNCES como padrão. Justificativa — a marca
+   trabalha "olhar cinematográfico" sobre um fundo Liquid Glass translúcido;
+   Fraunces tem contraste de traço alto e presença editorial forte mesmo em
+   tamanho grande de hero, o que segura bem contra um fundo desfocado/em
+   movimento (o shader do item 1). Bricolage Grotesque é mais "produto de
+   tech" (menos cinematográfico) e Instrument Serif, sendo muito fina, perdeu
+   força visual nos testes de hero em mobile (390px) — os dois continuam
+   disponíveis abaixo como troca de 1 linha, não decisão final de marca (isso
+   é do operador/Dev Master, mudar aqui é só apontar --font-headline para
+   outra pilha). */
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/fraunces-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/fraunces-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/bricolage-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/bricolage-700.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Instrument Serif";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/instrument-serif-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Instrument Serif";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/instrument-serif-400-italic.woff2") format("woff2");
+}
+
 :root {
   --bg-dark: #05070a;
   --fg-light: #f3f4f6;
@@ -15,6 +77,14 @@
   --glass-highlight: rgba(255, 255, 255, 0.55);
   --header-h: 76px;
   --radius: 18px;
+
+  /* Troca rápida de candidata: aponte para uma das 3 pilhas abaixo.
+     --font-headline-weight acompanha porque Instrument Serif só existe em
+     400 (as outras duas ficam mais fortes em 600/700 para headline). */
+  --font-headline: "Fraunces", "Georgia", serif;
+  --font-headline-weight: 700;
+  /* --font-headline: "Bricolage Grotesque", "Segoe UI", sans-serif; --font-headline-weight: 700; */
+  /* --font-headline: "Instrument Serif", "Georgia", serif; --font-headline-weight: 400; */
 }
 
 * { box-sizing: border-box; }
@@ -49,14 +119,20 @@ img { max-width: 100%; display: block; }
   -webkit-transform: translateZ(0);
 }
 
-.bg-video {
+.bg-shader-canvas {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  /* será deslocado via transform no scroll (parallax) e escrubado via JS (currentTime) */
-  will-change: transform;
+}
+
+/* O <canvas> do p5 é renderizado em resolução reduzida (ver RENDER_SCALE em
+   bg-shader.js) e esticado para 100% via CSS — upscale de propósito, técnica
+   padrão pra shader de fundo: é um fundo desfocado atrás de conteúdo, não
+   precisa da resolução física da tela para nada. */
+.bg-shader-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
   filter: none; /* grade de cor final: pendente do colorista-master */
-  -webkit-transform: translateZ(0);
 }
 
 .bg-video-overlay {
@@ -189,9 +265,10 @@ img { max-width: 100%; display: block; }
 }
 
 .hero-title {
+  font-family: var(--font-headline);
   font-size: clamp(1.6rem, 6vw, 4.2rem);
   line-height: 1.15;
-  font-weight: 700;
+  font-weight: var(--font-headline-weight);
   margin: 0;
   max-width: 100%;
   min-width: 0;
@@ -220,6 +297,8 @@ img { max-width: 100%; display: block; }
 /* ---------- Sections genéricas ---------- */
 .section { padding: 100px 20px; position: relative; }
 .section-title {
+  font-family: var(--font-headline);
+  font-weight: var(--font-headline-weight);
   text-align: center;
   font-size: clamp(1.8rem, 4vw, 2.6rem);
   margin-bottom: 48px;
@@ -231,7 +310,7 @@ img { max-width: 100%; display: block; }
   max-width: 780px;
   padding: 48px;
 }
-.glass-panel h2 { margin-top: 0; font-size: 1.8rem; }
+.glass-panel h2 { margin-top: 0; font-size: 1.8rem; font-family: var(--font-headline); font-weight: var(--font-headline-weight); }
 .glass-panel p { line-height: 1.7; font-size: 1.05rem; color: var(--fg-muted); margin-bottom: 0; }
 
 /* Bloco "Sobre nós" quebrado em partes menores com respiro entre elas, em vez
@@ -294,7 +373,7 @@ img { max-width: 100%; display: block; }
     0 1px 0 rgba(255, 255, 255, 0.08) inset,
     0 24px 44px -18px rgba(0, 0, 0, 0.6);
 }
-.servico-card h3 { margin: 0 0 12px; font-size: 1.15rem; }
+.servico-card h3 { margin: 0 0 12px; font-size: 1.15rem; font-family: var(--font-headline); font-weight: var(--font-headline-weight); }
 .servico-card p { margin: 0; line-height: 1.6; font-size: 0.95rem; color: var(--fg-muted); }
 
 @media (prefers-reduced-motion: reduce) {
@@ -351,6 +430,59 @@ img { max-width: 100%; display: block; }
 
 @media (max-width: 560px) {
   .depoimentos-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Clientes (grade de nomes, conceito coolideas.com.br) ----------
+   Sem logo de arquivo pronto para nenhum cliente desta lista: o nome vira um
+   "wordmark" em texto (tipografia de headline do item 4), num card de vidro
+   simples — mesma superfície visual usada no resto do site, sem inventar
+   grafismo de logo que a marca do cliente não aprovou. */
+.clientes-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.cliente-card {
+  padding: 28px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 96px;
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 45%),
+    var(--glass-bg);
+  border-color: rgba(255, 255, 255, 0.1);
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+.cliente-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.cliente-card span {
+  font-family: var(--font-headline);
+  font-weight: var(--font-headline-weight);
+  font-size: clamp(0.95rem, 1.6vw, 1.25rem);
+  line-height: 1.25;
+  color: var(--fg-light);
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cliente-card { transition: none; }
+}
+
+@media (max-width: 900px) {
+  .clientes-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .clientes-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .cliente-card { padding: 22px 12px; min-height: 84px; }
 }
 
 /* ---------- Scroll-reveal: blocos aparecem com fade/slide conforme entram na
@@ -423,6 +555,11 @@ img { max-width: 100%; display: block; }
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
+  /* Explícito (não só o padrão do navegador): a rolagem infinita depende de
+     "teleportar" o scrollLeft por uma largura de conjunto inteiro de forma
+     instantânea e imperceptível (ver main.js, handleInfiniteWrap) — isso
+     quebraria visivelmente se este elemento herdasse algum smooth-scroll. */
+  scroll-behavior: auto;
   padding: 60px 0;
   perspective: 1400px;
   -ms-overflow-style: none;
@@ -540,7 +677,7 @@ img { max-width: 100%; display: block; }
   gap: 20px;
 }
 .footer-logo { height: 30px; opacity: 0.9; }
-.footer-inner h2 { font-size: 1.6rem; margin: 0; }
+.footer-inner h2 { font-size: 1.6rem; margin: 0; font-family: var(--font-headline); font-weight: var(--font-headline-weight); }
 .footer-contacts {
   display: flex;
   gap: 20px;

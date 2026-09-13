@@ -53,6 +53,12 @@ app.use(
         imgSrc: ["'self'", "data:"],
         mediaSrc: ["'self'"],
         connectSrc: ["'self'"],
+        // Tipografia de headline (Fraunces/Bricolage/Instrument Serif) e o
+        // shader de fundo (p5.js) são servidos localmente em /fonts e
+        // /js/vendor — nunca de CDN de terceiro — então 'self' já cobre os
+        // dois; explícito aqui só para não depender do fallback silencioso
+        // de fontSrc em default-src.
+        fontSrc: ["'self'"],
       },
     },
   })

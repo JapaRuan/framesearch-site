@@ -79,76 +79,11 @@ let carouselInitialized = false;
   });
 })();
 
-// ---------- Vídeo de fundo: parallax + scrub no scroll ----------
-(function bgVideoParallax() {
-  const video = document.getElementById("bg-video");
-  if (!video) return;
-
-  let ticking = false;
-  let duration = 0;
-
-  // iOS Safari só garante autoplay de forma confiável quando muted+playsinline+autoplay
-  // já estão como atributos HTML (feito no index.html) E o estado JS do elemento também
-  // está mudo antes de qualquer tentativa de play() — setar aqui de novo é defensivo
-  // contra navegador que ignore/perca o atributo em alguma condição de carregamento.
-  video.muted = true;
-  video.defaultMuted = true;
-
-  // play() pode falhar silenciosamente (política de autoplay, "Modo de Baixo Consumo"
-  // do iOS, ou o vídeo ainda não ter dado buffer suficiente). Em vez de tentar uma vez
-  // só no loadedmetadata e desistir para sempre se falhar, tenta de novo em outros
-  // eventos do próprio ciclo de vida do vídeo — sem isso, uma falha isolada de rede no
-  // primeiro segundo deixa o fundo travado (preto/poster) pelo resto da visita.
-  function tentarTocar() {
-    const p = video.play();
-    if (p && typeof p.catch === "function") p.catch(() => {});
-  }
-
-  tentarTocar();
-  video.addEventListener("loadedmetadata", () => {
-    duration = video.duration || 0;
-    tentarTocar();
-  });
-  video.addEventListener("canplay", tentarTocar);
-  video.addEventListener("canplaythrough", tentarTocar);
-
-  // iOS pausa vídeo de fundo ao trocar de app/aba ou ao voltar de navegação via
-  // bfcache (gesto de swipe-back do Safari); sem isso o vídeo fica congelado no
-  // primeiro frame quando o usuário volta para a aba.
-  document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "visible" && video.paused) tentarTocar();
-  });
-  window.addEventListener("pageshow", () => {
-    if (video.paused) tentarTocar();
-  });
-
-  function update() {
-    ticking = false;
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = docHeight > 0 ? Math.min(1, Math.max(0, scrollTop / docHeight)) : 0;
-
-    // Parallax sutil: desloca o vídeo verticalmente numa fração do scroll.
-    video.style.transform = `translateY(${progress * -40}px) scale(1.08)`;
-
-    // Scrub leve: acompanha o progresso da página no próprio vídeo (sem travar o loop natural
-    // quando o vídeo está tocando — só corrige deriva quando a página muda rápido).
-    if (duration > 0 && video.paused) {
-      video.currentTime = progress * duration;
-    }
-  }
-
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(update);
-      }
-    },
-    { passive: true }
-  );
-})();
+// ---------- Fundo do site ----------
+// O fundo passou a ser um shader GLSL (p5.js), não mais um <video> — a lógica
+// de parallax/scrub que existia aqui foi substituída pelo próprio script
+// public/js/bg-shader.js, que já lê o scroll diretamente (amplitude do ruído
+// ligada à velocidade do scroll, ver comentário completo naquele arquivo).
 
 // ---------- Scroll-reveal: fade/slide um bloco de cada vez ao rolar ----------
 (function scrollReveal() {
@@ -323,11 +258,34 @@ async function initCarousel() {
     return;
   }
 
+  // Rolagem infinita: em vez de tentar "detectar fim e voltar pro início" (o que
+  // sempre acaba tendo um instante em que dá pra ver o carrossel travar ou pular
+  // de forma visível), renderizamos o mesmo conjunto de itens 3 vezes seguidas
+  // (buffer-anterior + conjunto-real + buffer-seguinte) e trabalhamos sempre no
+  // conjunto do meio. Isso resolve os dois bugs relatados ao mesmo tempo:
+  //  - o carrossel abrir "no 5º item" em telas largas: o bug real era o
+  //    scrollIntoView({inline:'center'}) do primeiro card não conseguir de fato
+  //    centralizá-lo, porque não existe espaço para rolar ANTES do primeiro
+  //    item (scrollLeft não pode ser negativo) — em telas largas, com vários
+  //    cards cabendo ao mesmo tempo, o centro geométrico da faixa acabava caindo
+  //    num card do meio da lista, e esse (não o primeiro) virava o "ativo".
+  //    Com o buffer-anterior, sempre existe espaço de sobra para rolar antes do
+  //    primeiro item real, então o centro geométrico bate exatamente nele.
+  //  - fim do carrossel "travando": ao entrar no buffer-anterior ou
+  //    buffer-seguinte (que são visualmente idênticos ao conjunto real, mesmo
+  //    tamanho em pixels), pulamos a posição de scroll em exatamente a largura
+  //    de um conjunto inteiro, de forma instantânea (scroll-behavior padrão do
+  //    track é "auto", não "smooth") — como os dois conjuntos são idênticos
+  //    pixel a pixel, o pulo é imperceptível e o usuário nunca vê um "fim".
+  const TOTAL_REAL = items.length;
+  const renderList = [...items, ...items, ...items];
+
   track.innerHTML = "";
-  items.forEach((item, i) => {
+  renderList.forEach((item, i) => {
     const card = document.createElement("div");
     card.className = `carousel-card ${item.orientation === "horizontal" ? "horizontal" : ""}`;
     card.dataset.index = String(i);
+    card.dataset.realIndex = String(i % TOTAL_REAL);
 
     const img = document.createElement("img");
     img.className = "poster";
@@ -484,6 +442,28 @@ async function initCarousel() {
     });
   }
 
+  // Largura de um conjunto inteiro de cards (real, sem duplicatas) em pixels —
+  // recalculada a cada resize/orientação porque a largura de cada card muda
+  // por breakpoint (ver CSS: min(70vw, 260px) etc.). scrollWidth / 3 porque
+  // renderizamos exatamente 3 cópias idênticas do mesmo conjunto.
+  let oneSetWidth = 0;
+  function recalcOneSetWidth() {
+    oneSetWidth = track.scrollWidth / 3;
+  }
+
+  function handleInfiniteWrap() {
+    if (!oneSetWidth) return;
+    // Margem de segurança: só pula quando o scroll já está bem dentro do
+    // conjunto-buffer (não logo na borda), para nunca competir com o
+    // scroll-snap tentando assentar num card exatamente na fronteira.
+    const margem = oneSetWidth * 0.1;
+    if (track.scrollLeft < margem) {
+      track.scrollLeft += oneSetWidth;
+    } else if (track.scrollLeft > oneSetWidth * 2 - margem) {
+      track.scrollLeft -= oneSetWidth;
+    }
+  }
+
   let rafPending = false;
   track.addEventListener(
     "scroll",
@@ -491,6 +471,7 @@ async function initCarousel() {
       if (!rafPending) {
         rafPending = true;
         requestAnimationFrame(() => {
+          handleInfiniteWrap();
           updateActive();
           rafPending = false;
         });
@@ -498,6 +479,10 @@ async function initCarousel() {
     },
     { passive: true }
   );
+
+  window.addEventListener("resize", () => {
+    recalcOneSetWidth();
+  });
 
   // Drag horizontal com mouse (touch já funciona nativamente via overflow-x).
   let isDown = false;
@@ -540,9 +525,15 @@ async function initCarousel() {
     }
   });
 
-  // Centraliza o primeiro card e ativa.
+  // Centraliza o primeiro card REAL (início do conjunto do meio, índice
+  // TOTAL_REAL na lista renderizada — não o índice 0 do DOM, que é buffer) e
+  // ativa. behavior:"auto" explícito porque scrollIntoView herdaria
+  // scroll-behavior:smooth se algum dia isso for setado no elemento — aqui
+  // queremos o posicionamento inicial instantâneo, sem animação visível.
   requestAnimationFrame(() => {
-    cards[0]?.scrollIntoView({ inline: "center", block: "nearest" });
+    recalcOneSetWidth();
+    const primeiroCardReal = cards[TOTAL_REAL];
+    primeiroCardReal?.scrollIntoView({ inline: "center", block: "nearest", behavior: "auto" });
     updateActive();
   });
 }

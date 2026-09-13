@@ -10,27 +10,15 @@
 </head>
 <body>
 
-<!-- Vídeo de fundo interativo (site inteiro). Trocado por vídeo de banco (Pexels,
-     licença livre/CC0) a pedido do operador em 2026-09-13: o clipe interno estava sem
-     grade de cor há tempo e ficava escuro/sem cor no fundo. Fonte e licença completas
-     documentadas no README ("Vídeo de fundo — fonte e licença"). Este é um placeholder
-     visual, não o material de portfólio real da Frame Search — trocar de novo quando
-     houver captação/grade própria disponível. -->
+<!-- Fundo do site inteiro: shader GLSL em tempo real (p5.js/WEBGL), não mais
+     vídeo de arquivo. Motivo da troca (pedido do operador): vídeo de arquivo
+     tem qualidade inconsistente entre aparelhos (compressão, banda,
+     decodificação) — shader é cálculo puro na GPU do visitante, mesma
+     qualidade sempre. Comportamento e cor: ver comentário completo em
+     public/js/bg-shader.js e README ("Pendências para o colorista-master") —
+     cor é placeholder neutro, decisão final de paleta não é deste agente. -->
 <div class="bg-video-wrap" aria-hidden="true">
-  <video
-    id="bg-video"
-    class="bg-video"
-    src="/video/background/bg-loop.mp4"
-    poster="/video/posters/bg-loop.jpg"
-    muted
-    loop
-    autoplay
-    playsinline
-    webkit-playsinline="true"
-    x-webkit-airplay="allow"
-    disablePictureInPicture
-    preload="auto"
-  ></video>
+  <div id="bg-shader-canvas" class="bg-shader-canvas"></div>
   <div class="bg-video-overlay"></div>
 </div>
 
@@ -56,6 +44,7 @@
       <a href="#sobre">Sobre</a>
       <a href="#servicos">Serviços</a>
       <a href="#depoimentos">Depoimentos</a>
+      <a href="#clientes">Clientes</a>
       <a href="#portfolio">Portfólio</a>
       <a href="#contato">Contato</a>
     </nav>
@@ -196,6 +185,30 @@
     </div>
   </section>
 
+  <!-- CLIENTES — grade só de nomes (conceito: coolideas.com.br), sem texto
+       longo. Nenhum desses clientes tem arquivo de logo pronto ainda, então o
+       nome aparece em texto estilizado com a tipografia de headline (item 4)
+       em vez de um logo inventado/gerado ou um buraco na grade. Lista
+       confirmada pelo operador, sem nenhum nome além destes. -->
+  <section id="clientes" class="section clientes">
+    <h2 class="section-title" data-reveal>Empresas que já fizemos parte do processo</h2>
+    <div class="clientes-grid" data-reveal-group>
+      <div class="glass cliente-card" data-reveal><span>Recanto dos Vieiras</span></div>
+      <div class="glass cliente-card" data-reveal><span>Dhoo Sushi</span></div>
+      <div class="glass cliente-card" data-reveal><span>Alexandria Burger</span></div>
+      <div class="glass cliente-card" data-reveal><span>Santa Bella</span></div>
+      <div class="glass cliente-card" data-reveal><span>Fairies</span></div>
+      <div class="glass cliente-card" data-reveal><span>Boca Mafra</span></div>
+      <div class="glass cliente-card" data-reveal><span>Kart Night</span></div>
+      <div class="glass cliente-card" data-reveal><span>Bruno Kotaka</span></div>
+      <div class="glass cliente-card" data-reveal><span>Dr. Pepe</span></div>
+      <div class="glass cliente-card" data-reveal><span>Siko</span></div>
+      <div class="glass cliente-card" data-reveal><span>Cabelinho Na Régua</span></div>
+      <div class="glass cliente-card" data-reveal><span>TVC Panorama</span></div>
+      <div class="glass cliente-card" data-reveal><span>Dr. Rigatti</span></div>
+    </div>
+  </section>
+
   <!-- PORTFÓLIO — gate + carrossel -->
   <section id="portfolio" class="section portfolio">
     <h2 class="section-title">Portfólio</h2>
@@ -243,6 +256,8 @@
   <div class="glass-specular" aria-hidden="true"></div>
 </footer>
 
+<script src="/js/vendor/p5.min.js" defer></script>
+<script src="/js/bg-shader.js" defer></script>
 <script src="/js/main.js" defer></script>
 </body>
 </html>

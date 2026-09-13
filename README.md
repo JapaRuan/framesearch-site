@@ -106,27 +106,28 @@ tornar essa troca barata — não precisa mexer em `server/index.js`.
 
 Nada de cor final foi decidido aqui — só preparei a estrutura:
 
-1. **Vídeo de fundo** (`public/video/background/bg-loop.mp4`): o corte original vinha de
-   `Reels - Cinematografia/Video Siko Horizontal.mp4` (o único vídeo de cinematografia do
-   acervo), sem nenhuma correção de cor/LUT — ficou escuro e sem cor no fundo do site por
-   tempo demais. A pedido do operador em 2026-09-13, troquei temporariamente por um vídeo
-   de banco de imagens gratuito, só para o site parar de parecer "morto" enquanto não
-   existe uma captação/grade própria pronta para esse lugar. **Isto é placeholder, não é
-   material de portfólio real da Frame Search** — o colorista/operador deve substituir de
-   novo assim que houver um clipe interno já gradeado para essa função.
+1. **Fundo do site** (`public/js/bg-shader.js`): deixou de ser vídeo de arquivo (o
+   `bg-loop.mp4`/Pexels descrito abaixo, agora **não referenciado em lugar nenhum do
+   HTML/CSS/JS** — arquivo mantido em disco, não apagado, caso o Dev Master prefira
+   reverter) e passou a ser um **shader GLSL renderizado em tempo real via p5.js
+   (modo WEBGL)**. Motivo: vídeo de arquivo tinha qualidade inconsistente entre
+   aparelhos (compressão/banda/decodificação); shader é cálculo puro na GPU do próprio
+   visitante, mesma qualidade sempre. Comportamento: ruído orgânico tipo "heat-haze"
+   cuja intensidade/avanço de tempo está ligado à velocidade do scroll (não a um
+   `requestAnimationFrame` contínuo e incondicional) — parado o scroll, o desenho para
+   de verdade (`p.noLoop()`), não só "parece parado". Testado nesta sessão com
+   Puppeteer + CPU throttling 4x em viewport de celular (390×844): scroll completo da
+   página inteira sem erro de console e sem travamento perceptível. **Cor é
+   propositalmente neutra/placeholder** (tons de cinza escuro em torno de
+   `--bg-dark`) — decisão de intensidade/saturação/temperatura final é do Colorista
+   Master. Documentação completa do motivo de cada escolha técnica está em comentário
+   no topo do próprio `public/js/bg-shader.js`.
 
-   - **Fonte (página, não só o arquivo):** https://www.pexels.com/video/colorful-lights-855548/
-   - **Título:** "Colorful Lights"
-   - **Autor/crédito:** Pixabay (via Pexels)
-   - **Licença:** Pexels License (equivalente a CC0 para fins práticos) — uso comercial
-     livre, sem exigência de atribuição. Confirmada na própria página do vídeo em
-     2026-09-13 (`"license":"CC0"` / `"license":"Pexels"` nos metadados estruturados da
-     página).
-   - **Processamento aplicado aqui:** baixado em 1920x1080, recomprimido para
-     1280x720, H.264, sem áudio, CRF 27, `preset veryfast`, `+faststart` — mesmo padrão
-     usado no restante do site (`scripts/compress-portfolio.mjs`). Poster gerado em
-     `public/video/posters/bg-loop.jpg` (arquivo próprio — não reutiliza o poster do
-     vídeo "Vídeo Siko" do carrossel, que é outro arquivo/outro conteúdo).
+   - **Arquivo antigo (`public/video/background/bg-loop.mp4` + poster), histórico
+     preservado abaixo só para referência de proveniência — não é mais usado:**
+     fonte https://www.pexels.com/video/colorful-lights-855548/, título "Colorful
+     Lights", autor/crédito Pixabay (via Pexels), licença Pexels License (equivalente a
+     CC0), confirmada em 2026-09-13.
 2. **Todos os vídeos do carrossel** (`public/video/portfolio/*.mp4`) são apenas
    comprimidos para web (H.264, sem grade), a partir do acervo bruto de
    `H:\Meu Drive\Frame Search\- Portfólio\Portfólio - Propósta`. Nenhuma decisão de cor
@@ -209,3 +210,80 @@ Animações After Effects, já descontando o par .mov/.mp4 duplicado da peça "A
   estatística inventada) e expandido o texto de "Sobre" com mais profundidade sobre como o
   time multidisciplinar trabalha junto (sem inventar dado novo sobre a empresa). Link
   "Serviços" adicionado à nav do header.
+
+## Sessão de 2026-09-13 (parte 3) — lista de correções do operador, seção por seção
+
+Todas as 5 seções pedidas foram implementadas, testadas com Puppeteer real (não só
+lido/inspecionado) em pelo menos uma largura mobile real (390×844) e uma desktop
+(1440×900), e o código foi só commitado localmente — **sem push**, por instrução
+explícita; o Dev Master revisa e decide subir.
+
+1. **Fundo de vídeo → shader (GLSL via p5.js)**: ver seção "Pendências para o
+   colorista-master" acima para os detalhes técnicos e o que falta (cor). Testes reais
+   feitos nesta sessão: (a) o shader responde ao scroll e assenta sozinho quando o
+   scroll para — confirmado comparando `canvas.toDataURL()` entre frames: muda a cada
+   scroll novo, para de mudar ~1,5s depois do scroll parar; (b) zero erros de console em
+   desktop e mobile; (c) CPU-throttle 4x (Chrome DevTools Protocol,
+   `Emulation.setCPUThrottlingRate`) simulando celular de entrada, com scroll da página
+   inteira (6766px de altura) em viewport 390×844 — sem erro, sem travamento.
+2. **Carrossel do portfólio**:
+   - **a) Título de arquivo → nome real**: `public/video/portfolio.json` teve o campo
+     `title` de todos os 25 itens corrigido para o mapeamento confirmado pelo operador
+     (clientes reais + descrição neutra nos genéricos, sem inventar nome tipo "412").
+     Validado lendo o JSON de volta e conferindo os 25 pares slug→título.
+   - **b) Abria no 5º item no desktop**: causa raiz encontrada — o
+     `scrollIntoView({inline:'center'})` do primeiro card não conseguia de fato
+     centralizá-lo porque não existe espaço para rolar antes do primeiro item
+     (`scrollLeft` não pode ser negativo); em telas largas, com vários cards cabendo ao
+     mesmo tempo, o centro geométrico da faixa caía num card do meio, não no primeiro.
+     Corrigido junto com o item (c) abaixo. Reconfirmado com Puppeteer em 1440×900: card
+     ativo inicial agora é sempre o primeiro item real (`realIndex 0`, "Reels
+     Comercial"), e também em 390×844.
+   - **c) Rolagem infinita**: implementada renderizando o mesmo conjunto de 25 itens 3
+     vezes (buffer-anterior + conjunto real + buffer-seguinte) e "teleportando" o
+     `scrollLeft` em exatamente uma largura de conjunto quando o usuário entra no
+     buffer, de forma instantânea e imperceptível (os dois conjuntos são idênticos
+     pixel a pixel). Isso resolveu o (b) de graça: com buffer antes do primeiro item,
+     sempre existe espaço para centralizá-lo de verdade. Testado simulando 40 passos de
+     scroll para a direita e 80 para a esquerda (bem além de um conjunto inteiro nos
+     dois sentidos): carrossel nunca travou, nunca ficou em branco, sempre voltou a
+     mostrar um item real e válido.
+3. **Gate de desbloqueio**: a checagem de `localStorage` antes de mostrar o formulário
+   **já existia no código** (`fs_portfolio_unlocked`, ver `public/js/main.js`) —
+   confirmado nesta sessão com um teste dedicado: com o flag pré-setado, o formulário
+   nunca é anexado a nenhum listener de submit e **zero requisições** são feitas para
+   `/api/leads` (capturadas via interceptação de rede do Puppeteer, não só inspeção de
+   código). Segunda camada no backend (checagem por sessão/dispositivo) não foi
+   implementada — é opcional no pedido original e o mínimo obrigatório (localStorage)
+   já está coberto e verificado.
+4. **Tipografia de headline**: testadas as 3 candidatas lado a lado (Fraunces,
+   Bricolage Grotesque, Instrument Serif), self-hospedadas em `public/fonts/*.woff2`
+   (sem CDN de terceiro, para não abrir a CSP `style-src`/`font-src` que hoje é só
+   `'self'`). Decisão do code-master: **Fraunces** como padrão — maior presença/contraste
+   de traço contra um fundo Liquid Glass em movimento, e reforça o tom "olhar
+   cinematográfico" mais do que as outras duas (Bricolage ficou com cara mais "produto de
+   tech"; Instrument Serif perdeu força visual no hero em mobile por ser muito fina).
+   Aplicada só em `h1`/`h2`/`h3` de título (`--font-headline`/`--font-headline-weight`
+   em `:root`); corpo de texto continua na pilha neutra original. As outras 2 pilhas
+   ficam comentadas ao lado no CSS para troca de 1 linha, caso o Dev Master/operador
+   prefira outra — decisão final de marca não é deste agente.
+5. **Nova seção "Empresas que já fizemos parte do processo"** (`#clientes`, entre
+   Depoimentos e Portfólio, com link adicionado à nav): grade só de nomes em texto
+   estilizado (conceito replicado de coolideas.com.br — sem copiar mais nada do site),
+   já que nenhum desses clientes tem arquivo de logo pronto. Lista final confirmada pelo
+   operador ao longo da sessão (com adições e uma remoção pedidas depois do briefing
+   inicial): Recanto dos Vieiras, Dhoo Sushi, Alexandria Burger, Santa Bella, Fairies,
+   Boca Mafra, Kart Night, Bruno Kotaka, Dr. Pepe, Siko, Cabelinho Na Régua, TVC
+   Panorama, Dr. Rigatti — 13 no total. **Allanis foi removido desta grade** a pedido do
+   operador, mas continua normalmente no carrossel de vídeo (item 2), com o vídeo
+   `Storys Reels Desfile Allanis.mp4` intacto. Grade responsiva confirmada com
+   Puppeteer: 4 colunas em 1440px, 2 colunas em 390px, nenhum nome cortado/espremido.
+
+**Nota de ambiente (Windows + Google Drive) para quem for testar de novo**: o
+`node_modules` desta pasta (sincronizada via Google Drive em `H:\`) está com pelo menos
+um pacote corrompido (`puppeteer/package.json` com 0 bytes — é um artefato do Drive, não
+do npm). Os testes com Puppeteer desta sessão foram rodados a partir de uma cópia do
+projeto em `C:\Users\ruani\fs-site-test` (fora do Drive) com `npm install` limpo — mesma
+armadilha de Drive+Windows já documentada na seção "Rodar localmente" acima, agora
+também afetando pacotes usados só para teste (não é dependência de produção do
+`package.json`).
