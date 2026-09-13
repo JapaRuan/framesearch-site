@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Frame Search — Estúdio Audiovisual</title>
+<meta name="description" content="FrameSearch: captação, edição e direção de arte para vídeo com olhar cinematográfico e ritmo de internet." />
+<link rel="icon" href="/img/logo-mono-preto.png" />
+<link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+<!-- Vídeo de fundo interativo (site inteiro). NÃO gradeado — aguardando colorista-master. -->
+<div class="bg-video-wrap" aria-hidden="true">
+  <video
+    id="bg-video"
+    class="bg-video"
+    src="/video/background/bg-loop.mp4"
+    poster="/video/posters/video-siko-horizontal.jpg"
+    muted
+    loop
+    playsinline
+    preload="auto"
+  ></video>
+  <div class="bg-video-overlay"></div>
+</div>
+
+<!-- HEADER — Liquid Glass -->
+<header class="glass header" id="site-header">
+  <div class="header-inner">
+    <a href="#topo" class="logo-link" aria-label="Frame Search — início">
+      <img src="/img/logo-simbolo.png" alt="Frame Search" class="logo-img logo-img--simbolo" />
+    </a>
+    <nav class="nav" aria-label="Navegação principal">
+      <a href="#sobre">Sobre</a>
+      <a href="#portfolio">Portfólio</a>
+      <a href="#contato">Contato</a>
+    </nav>
+  </div>
+  <div class="glass-specular" aria-hidden="true"></div>
+</header>
+
+<main id="topo">
+
+  <section class="hero">
+    <h1 class="hero-title">Olhar cinematográfico.<br>Ritmo de internet.</h1>
+    <a href="#portfolio" class="btn btn-primary">Ver portfólio</a>
+  </section>
+
+  <!-- SOBRE — Liquid Glass -->
+  <section id="sobre" class="section sobre">
+    <div class="glass glass-panel">
+      <h2>Sobre nós</h2>
+      <p>
+        FrameSearch nasce do encontro entre olhar cinematográfico e ritmo de internet.
+        Trabalhamos captação, edição e direção de arte como uma coisa só: cada vídeo é
+        pensado para prender atenção nos primeiros segundos e carregar identidade visual
+        até o último frame. Não entregamos vídeo genérico de prateleira — entregamos a
+        versão mais afiada da história que a marca do cliente já tem para contar.
+      </p>
+      <div class="glass-specular" aria-hidden="true"></div>
+    </div>
+  </section>
+
+  <!-- PORTFÓLIO — gate + carrossel -->
+  <section id="portfolio" class="section portfolio">
+    <h2 class="section-title">Portfólio</h2>
+
+    <div id="gate" class="glass gate-box">
+      <p class="gate-text">Deixe seu contato para desbloquear o portfólio completo.</p>
+      <form id="gate-form" novalidate>
+        <div class="field">
+          <label for="gate-nome">Nome</label>
+          <input id="gate-nome" name="nome" type="text" autocomplete="name" required minlength="2" maxlength="120" />
+          <span class="field-error" id="erro-nome" role="alert"></span>
+        </div>
+        <div class="field">
+          <label for="gate-telefone">WhatsApp / telefone</label>
+          <input id="gate-telefone" name="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(47) 99999-9999" required />
+          <span class="field-error" id="erro-telefone" role="alert"></span>
+        </div>
+        <button type="submit" class="btn btn-primary" id="gate-submit">Desbloquear</button>
+        <p class="gate-status" id="gate-status" role="status" aria-live="polite"></p>
+      </form>
+      <div class="glass-specular" aria-hidden="true"></div>
+    </div>
+
+    <div id="carousel-wrap" class="carousel-wrap" hidden>
+      <div id="carousel" class="carousel" tabindex="0" role="region" aria-label="Carrossel de vídeos do portfólio"></div>
+      <p class="carousel-hint">Arraste para os lados para navegar</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- FOOTER — Liquid Glass -->
+<footer id="contato" class="glass footer">
+  <div class="footer-inner">
+    <img src="/img/logo-mono-branco.png" alt="Frame Search" class="footer-logo" />
+    <h2>Vamos gravar a próxima história da sua marca?</h2>
+    <a class="btn btn-primary" href="https://wa.me/5547996060890" target="_blank" rel="noopener">
+      Agendar reunião pelo WhatsApp
+    </a>
+    <div class="footer-contacts">
+      <a href="mailto:framesearchfilms@gmail.com">framesearchfilms@gmail.com</a>
+      <a href="https://wa.me/5547996060890" target="_blank" rel="noopener">(47) 99606-0890</a>
+    </div>
+  </div>
+  <div class="glass-specular" aria-hidden="true"></div>
+</footer>
+
+<script src="/js/main.js" defer></script>
+</body>
+</html>

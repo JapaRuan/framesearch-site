@@ -1,0 +1,202 @@
+[
+  {
+    "slug": "v03-reels",
+    "title": "V03 - Reels",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/v03-reels.mp4",
+    "poster": "/video/posters/v03-reels.jpg"
+  },
+  {
+    "slug": "dr-pepe-anestesia",
+    "title": "Dr. Pepe - Anestesia",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/dr-pepe-anestesia.mp4",
+    "poster": "/video/posters/dr-pepe-anestesia.jpg"
+  },
+  {
+    "slug": "criativo-bruno-kotaka",
+    "title": "Criativo Bruno Kotaka",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/criativo-bruno-kotaka.mp4",
+    "poster": "/video/posters/criativo-bruno-kotaka.jpg"
+  },
+  {
+    "slug": "dhoo-sushi-menu-legendarios",
+    "title": "Dhoo Sushi - Menu Legendários",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/dhoo-sushi-menu-legendarios.mp4",
+    "poster": "/video/posters/dhoo-sushi-menu-legendarios.jpg"
+  },
+  {
+    "slug": "dhoo-sushi-cirurgia",
+    "title": "Dhoo Sushi - Cirurgia",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/dhoo-sushi-cirurgia.mp4",
+    "poster": "/video/posters/dhoo-sushi-cirurgia.jpg"
+  },
+  {
+    "slug": "direcionamento-empresarial-02",
+    "title": "Direcionamento Empresarial",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/direcionamento-empresarial-02.mp4",
+    "poster": "/video/posters/direcionamento-empresarial-02.jpg"
+  },
+  {
+    "slug": "desfile-allanis",
+    "title": "Desfile Allanis",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/desfile-allanis.mp4",
+    "poster": "/video/posters/desfile-allanis.jpg"
+  },
+  {
+    "slug": "recanto-dos-vieiras",
+    "title": "Recanto dos Vieiras",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/recanto-dos-vieiras.mp4",
+    "poster": "/video/posters/recanto-dos-vieiras.jpg"
+  },
+  {
+    "slug": "50-desconto-reajuste",
+    "title": "50% de Desconto - Reajuste",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/50-desconto-reajuste.mp4",
+    "poster": "/video/posters/50-desconto-reajuste.jpg"
+  },
+  {
+    "slug": "rcv-quem-gosta-de-fazer",
+    "title": "RCV - Quem Gosta de Fazer",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/rcv-quem-gosta-de-fazer.mp4",
+    "poster": "/video/posters/rcv-quem-gosta-de-fazer.jpg"
+  },
+  {
+    "slug": "colaborador-novo-remessa-1344",
+    "title": "Colaborador Novo - Remessa 1344",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/colaborador-novo-remessa-1344.mp4",
+    "poster": "/video/posters/colaborador-novo-remessa-1344.jpg"
+  },
+  {
+    "slug": "reel-campanha-01",
+    "title": "Reel & Campanha 01",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/reel-campanha-01.mp4",
+    "poster": "/video/posters/reel-campanha-01.jpg"
+  },
+  {
+    "slug": "reel-campanha-02",
+    "title": "Reel & Campanha 02",
+    "category": "criativos-comuns",
+    "orientation": "vertical",
+    "video": "/video/portfolio/reel-campanha-02.mp4",
+    "poster": "/video/posters/reel-campanha-02.jpg"
+  },
+  {
+    "slug": "kart-night-11-07",
+    "title": "Kart Night 11/07",
+    "category": "aftermovie",
+    "orientation": "vertical",
+    "video": "/video/portfolio/kart-night-11-07.mp4",
+    "poster": "/video/posters/kart-night-11-07.jpg"
+  },
+  {
+    "slug": "kart-night-confra",
+    "title": "Kart Night Confra",
+    "category": "aftermovie",
+    "orientation": "vertical",
+    "video": "/video/portfolio/kart-night-confra.mp4",
+    "poster": "/video/posters/kart-night-confra.jpg"
+  },
+  {
+    "slug": "boca-mafra-evento",
+    "title": "Boca Mafra Evento",
+    "category": "aftermovie",
+    "orientation": "vertical",
+    "video": "/video/portfolio/boca-mafra-evento.mp4",
+    "poster": "/video/posters/boca-mafra-evento.jpg"
+  },
+  {
+    "slug": "fairies-colmeia-evento",
+    "title": "Fairies - Colmeia Evento",
+    "category": "aftermovie",
+    "orientation": "vertical",
+    "video": "/video/portfolio/fairies-colmeia-evento.mp4",
+    "poster": "/video/posters/fairies-colmeia-evento.jpg"
+  },
+  {
+    "slug": "santa-bella-timbo",
+    "title": "Santa Bella - Timbó",
+    "category": "aftermovie",
+    "orientation": "vertical",
+    "video": "/video/portfolio/santa-bella-timbo.mp4",
+    "poster": "/video/posters/santa-bella-timbo.jpg"
+  },
+  {
+    "slug": "reels-aftermovie",
+    "title": "Reels - AfterMovie",
+    "category": "aftermovie",
+    "orientation": "vertical",
+    "video": "/video/portfolio/reels-aftermovie.mp4",
+    "poster": "/video/posters/reels-aftermovie.jpg"
+  },
+  {
+    "slug": "santa-bella-10-anos",
+    "title": "Santa Bella 10 Anos",
+    "category": "aftermovie",
+    "orientation": "vertical",
+    "video": "/video/portfolio/santa-bella-10-anos.mp4",
+    "poster": "/video/posters/santa-bella-10-anos.jpg"
+  },
+  {
+    "slug": "dez24-ouca-agora",
+    "title": "412 Dez/24 - Ouça Agora",
+    "category": "animacoes",
+    "orientation": "vertical",
+    "video": "/video/portfolio/dez24-ouca-agora.mp4",
+    "poster": "/video/posters/dez24-ouca-agora.jpg"
+  },
+  {
+    "slug": "dez24-assista-agora",
+    "title": "412 Dez/24 - Assista Agora",
+    "category": "animacoes",
+    "orientation": "vertical",
+    "video": "/video/portfolio/dez24-assista-agora.mp4",
+    "poster": "/video/posters/dez24-assista-agora.jpg"
+  },
+  {
+    "slug": "dez24-animacao",
+    "title": "412 Dez/24 - Animação",
+    "category": "animacoes",
+    "orientation": "vertical",
+    "video": "/video/portfolio/dez24-animacao.mp4",
+    "poster": "/video/posters/dez24-animacao.jpg"
+  },
+  {
+    "slug": "alexandria-vinculado-comp01",
+    "title": "Alexandria - Comp 01",
+    "category": "animacoes",
+    "orientation": "vertical",
+    "video": "/video/portfolio/alexandria-vinculado-comp01.mp4",
+    "poster": "/video/posters/alexandria-vinculado-comp01.jpg"
+  },
+  {
+    "slug": "video-siko-horizontal",
+    "title": "Vídeo Siko",
+    "category": "cinematografia",
+    "orientation": "horizontal",
+    "video": "/video/portfolio/video-siko-horizontal.mp4",
+    "poster": "/video/posters/video-siko-horizontal.jpg"
+  }
+]

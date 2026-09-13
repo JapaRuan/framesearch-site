@@ -1,0 +1,17 @@
+{
+  "name": "framesearch-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site institucional Frame Search (rebranding 2026). NAO fazer deploy a partir daqui sem autorizacao do operador.",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node server/index.js",
+    "compress-portfolio": "node scripts/compress-portfolio.mjs"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.4.0",
+    "helmet": "^7.1.0"
+  }
+}
