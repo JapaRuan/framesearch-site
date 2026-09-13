@@ -10,16 +10,25 @@
 </head>
 <body>
 
-<!-- Vídeo de fundo interativo (site inteiro). NÃO gradeado — aguardando colorista-master. -->
+<!-- Vídeo de fundo interativo (site inteiro). Trocado por vídeo de banco (Pexels,
+     licença livre/CC0) a pedido do operador em 2026-09-13: o clipe interno estava sem
+     grade de cor há tempo e ficava escuro/sem cor no fundo. Fonte e licença completas
+     documentadas no README ("Vídeo de fundo — fonte e licença"). Este é um placeholder
+     visual, não o material de portfólio real da Frame Search — trocar de novo quando
+     houver captação/grade própria disponível. -->
 <div class="bg-video-wrap" aria-hidden="true">
   <video
     id="bg-video"
     class="bg-video"
     src="/video/background/bg-loop.mp4"
-    poster="/video/posters/video-siko-horizontal.jpg"
+    poster="/video/posters/bg-loop.jpg"
     muted
     loop
+    autoplay
     playsinline
+    webkit-playsinline="true"
+    x-webkit-airplay="allow"
+    disablePictureInPicture
     preload="auto"
   ></video>
   <div class="bg-video-overlay"></div>
@@ -31,7 +40,19 @@
     <a href="#topo" class="logo-link" aria-label="Frame Search — início">
       <img src="/img/logo-simbolo.png" alt="Frame Search" class="logo-img logo-img--simbolo" />
     </a>
-    <nav class="nav" aria-label="Navegação principal">
+    <button
+      type="button"
+      class="nav-toggle"
+      id="nav-toggle"
+      aria-label="Abrir menu"
+      aria-expanded="false"
+      aria-controls="site-nav"
+    >
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <nav class="nav" id="site-nav" aria-label="Navegação principal">
       <a href="#sobre">Sobre</a>
       <a href="#servicos">Serviços</a>
       <a href="#depoimentos">Depoimentos</a>
@@ -53,28 +74,42 @@
   <section id="sobre" class="section sobre">
     <div class="glass glass-panel" data-reveal>
       <h2>Sobre nós</h2>
-      <p>
-        FrameSearch nasce do encontro entre olhar cinematográfico e ritmo de internet.
-        Trabalhamos captação, edição e direção de arte como uma coisa só: cada vídeo é
-        pensado para prender atenção nos primeiros segundos e carregar identidade visual
-        até o último frame. Não entregamos vídeo genérico de prateleira — entregamos a
-        versão mais afiada da história que a marca do cliente já tem para contar.
-      </p>
-      <p>
-        Por trás de cada entrega existe um time multidisciplinar, não um freelancer
-        isolado: quem capta imagem conversa com quem edita, quem edita conversa com quem
-        pensa a identidade visual, e a estratégia de tráfego entra desde o início — não
-        como um passo separado depois que o vídeo já está pronto. Esse é o motivo de
-        trabalharmos fotografia, filmagem, edição, design e tráfego pago como parte do
-        mesmo processo, em vez de etapas terceirizadas que se comunicam por e-mail.
-      </p>
-      <p>
-        Isso muda o resultado prático: a peça final já nasce pensada para o formato onde
-        ela vai rodar (feed, Stories, Reels, YouTube, campanha paga), com decisão de
-        enquadramento, ritmo de corte e chamada visual alinhados ao objetivo do cliente —
-        não um vídeo bonito que precisa ser "readaptado" depois para funcionar em cada
-        canal.
-      </p>
+
+      <div class="sobre-bloco">
+        <p class="sobre-destaque">
+          FrameSearch nasce do encontro entre olhar cinematográfico e ritmo de internet.
+        </p>
+        <p>
+          Trabalhamos captação, edição e direção de arte como uma coisa só: cada vídeo é
+          pensado para prender atenção nos primeiros segundos e carregar identidade
+          visual até o último frame. Não entregamos vídeo genérico de prateleira —
+          entregamos a versão mais afiada da história que a marca do cliente já tem para
+          contar.
+        </p>
+      </div>
+
+      <div class="sobre-bloco">
+        <span class="sobre-rotulo">Como trabalhamos</span>
+        <p>
+          Por trás de cada entrega existe um time multidisciplinar, não um freelancer
+          isolado: quem capta imagem conversa com quem edita, quem edita conversa com
+          quem pensa a identidade visual, e a estratégia de tráfego entra desde o
+          início — não como um passo separado depois que o vídeo já está pronto. Esse é
+          o motivo de trabalharmos fotografia, filmagem, edição, design e tráfego pago
+          como parte do mesmo processo, em vez de etapas terceirizadas que se comunicam
+          por e-mail.
+        </p>
+      </div>
+
+      <div class="sobre-bloco">
+        <span class="sobre-rotulo">O resultado prático</span>
+        <p>
+          A peça final já nasce pensada para o formato onde ela vai rodar (feed,
+          Stories, Reels, YouTube, campanha paga), com decisão de enquadramento, ritmo
+          de corte e chamada visual alinhados ao objetivo do cliente — não um vídeo
+          bonito que precisa ser "readaptado" depois para funcionar em cada canal.
+        </p>
+      </div>
       <div class="glass-specular" aria-hidden="true"></div>
     </div>
   </section>

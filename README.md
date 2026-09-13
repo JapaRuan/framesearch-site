@@ -106,12 +106,27 @@ tornar essa troca barata — não precisa mexer em `server/index.js`.
 
 Nada de cor final foi decidido aqui — só preparei a estrutura:
 
-1. **Vídeo de fundo** (`public/video/background/bg-loop.mp4`): cortei um trecho de 10s de
+1. **Vídeo de fundo** (`public/video/background/bg-loop.mp4`): o corte original vinha de
    `Reels - Cinematografia/Video Siko Horizontal.mp4` (o único vídeo de cinematografia do
-   acervo), sem nenhuma correção de cor/LUT — só corte, fade in/out para loop e
-   compressão. Esse é o arquivo que precisa da grade de cor definitiva. Se o colorista
-   preferir outra fonte do acervo para o fundo (esta era a única categoria
-   "Cinematografia" disponível), sinalizar para eu trocar o corte.
+   acervo), sem nenhuma correção de cor/LUT — ficou escuro e sem cor no fundo do site por
+   tempo demais. A pedido do operador em 2026-09-13, troquei temporariamente por um vídeo
+   de banco de imagens gratuito, só para o site parar de parecer "morto" enquanto não
+   existe uma captação/grade própria pronta para esse lugar. **Isto é placeholder, não é
+   material de portfólio real da Frame Search** — o colorista/operador deve substituir de
+   novo assim que houver um clipe interno já gradeado para essa função.
+
+   - **Fonte (página, não só o arquivo):** https://www.pexels.com/video/colorful-lights-855548/
+   - **Título:** "Colorful Lights"
+   - **Autor/crédito:** Pixabay (via Pexels)
+   - **Licença:** Pexels License (equivalente a CC0 para fins práticos) — uso comercial
+     livre, sem exigência de atribuição. Confirmada na própria página do vídeo em
+     2026-09-13 (`"license":"CC0"` / `"license":"Pexels"` nos metadados estruturados da
+     página).
+   - **Processamento aplicado aqui:** baixado em 1920x1080, recomprimido para
+     1280x720, H.264, sem áudio, CRF 27, `preset veryfast`, `+faststart` — mesmo padrão
+     usado no restante do site (`scripts/compress-portfolio.mjs`). Poster gerado em
+     `public/video/posters/bg-loop.jpg` (arquivo próprio — não reutiliza o poster do
+     vídeo "Vídeo Siko" do carrossel, que é outro arquivo/outro conteúdo).
 2. **Todos os vídeos do carrossel** (`public/video/portfolio/*.mp4`) são apenas
    comprimidos para web (H.264, sem grade), a partir do acervo bruto de
    `H:\Meu Drive\Frame Search\- Portfólio\Portfólio - Propósta`. Nenhuma decisão de cor

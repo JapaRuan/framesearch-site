@@ -37,6 +37,48 @@ let carouselInitialized = false;
   });
 })();
 
+// ---------- Menu mobile: hambúrguer abre/fecha a nav em telas estreitas ----------
+(function navToggle() {
+  const toggle = document.getElementById("nav-toggle");
+  const nav = document.getElementById("site-nav");
+  if (!toggle || !nav) return;
+
+  function closeNav() {
+    nav.classList.remove("is-open");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Abrir menu");
+  }
+
+  function openNav() {
+    nav.classList.add("is-open");
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.setAttribute("aria-label", "Fechar menu");
+  }
+
+  toggle.addEventListener("click", () => {
+    const isOpen = nav.classList.contains("is-open");
+    if (isOpen) closeNav();
+    else openNav();
+  });
+
+  // Fecha ao clicar num link (navegação por âncora) ou fora do menu/botão.
+  nav.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeNav));
+  document.addEventListener("click", (e) => {
+    if (!nav.classList.contains("is-open")) return;
+    if (nav.contains(e.target) || toggle.contains(e.target)) return;
+    closeNav();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeNav();
+  });
+
+  // Se a tela crescer para o layout desktop (nav sempre visível em linha),
+  // garante que o menu não fique "preso aberto" com estado de mobile.
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 760) closeNav();
+  });
+})();
+
 // ---------- Vídeo de fundo: parallax + scrub no scroll ----------
 (function bgVideoParallax() {
   const video = document.getElementById("bg-video");
@@ -45,10 +87,39 @@ let carouselInitialized = false;
   let ticking = false;
   let duration = 0;
 
+  // iOS Safari só garante autoplay de forma confiável quando muted+playsinline+autoplay
+  // já estão como atributos HTML (feito no index.html) E o estado JS do elemento também
+  // está mudo antes de qualquer tentativa de play() — setar aqui de novo é defensivo
+  // contra navegador que ignore/perca o atributo em alguma condição de carregamento.
+  video.muted = true;
+  video.defaultMuted = true;
+
+  // play() pode falhar silenciosamente (política de autoplay, "Modo de Baixo Consumo"
+  // do iOS, ou o vídeo ainda não ter dado buffer suficiente). Em vez de tentar uma vez
+  // só no loadedmetadata e desistir para sempre se falhar, tenta de novo em outros
+  // eventos do próprio ciclo de vida do vídeo — sem isso, uma falha isolada de rede no
+  // primeiro segundo deixa o fundo travado (preto/poster) pelo resto da visita.
+  function tentarTocar() {
+    const p = video.play();
+    if (p && typeof p.catch === "function") p.catch(() => {});
+  }
+
+  tentarTocar();
   video.addEventListener("loadedmetadata", () => {
     duration = video.duration || 0;
-    // Autoplay mudo; se o navegador bloquear, o poster/overlay cobre a ausência de movimento.
-    video.play().catch(() => {});
+    tentarTocar();
+  });
+  video.addEventListener("canplay", tentarTocar);
+  video.addEventListener("canplaythrough", tentarTocar);
+
+  // iOS pausa vídeo de fundo ao trocar de app/aba ou ao voltar de navegação via
+  // bfcache (gesto de swipe-back do Safari); sem isso o vídeo fica congelado no
+  // primeiro frame quando o usuário volta para a aba.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible" && video.paused) tentarTocar();
+  });
+  window.addEventListener("pageshow", () => {
+    if (video.paused) tentarTocar();
   });
 
   function update() {
@@ -222,6 +293,13 @@ function validarTelefoneClient(tel) {
   });
 })();
 
+// ---------- Ícone de som do card ativo do carrossel ----------
+function renderMuteIcon(isMuted) {
+  return isMuted
+    ? '<svg viewBox="0 0 24 24" fill="white"><path d="M16.5 12A4.5 4.5 0 0 0 14 8v2.18l2.45 2.45c.03-.2.05-.42.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.796 8.796 0 0 0 21 12c0-4.28-3.11-7.85-7-8.6v2.06c2.89.86 5 3.54 5 6.54zM4.27 3 3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.9 8.9 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4 9.91 6.09 12 8.18V4z"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="white"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.47 4.47 0 0 0 2.5-4zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4-.91 7-4.49 7-8.77s-3-7.86-7-8.77z"/></svg>';
+}
+
 // ---------- Carrossel coverflow com lazy-load ----------
 async function initCarousel() {
   if (carouselInitialized) return;
@@ -271,6 +349,16 @@ async function initCarousel() {
     playBtn.innerHTML =
       '<svg viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>';
 
+    // Só o card ativo/central toca com som (os outros ficam mudos para não virar
+    // um coro de vídeos ao mesmo tempo). Botão visível apenas no card ativo,
+    // permitindo ligar/desligar o som manualmente caso o navegador bloqueie o
+    // autoplay com áudio.
+    const muteBtn = document.createElement("button");
+    muteBtn.className = "mute-btn";
+    muteBtn.hidden = true;
+    muteBtn.setAttribute("aria-label", `Ativar som de ${item.title}`);
+    muteBtn.innerHTML = renderMuteIcon(true);
+
     const title = document.createElement("span");
     title.className = "card-title";
     title.textContent = item.title;
@@ -278,6 +366,7 @@ async function initCarousel() {
     card.appendChild(img);
     card.appendChild(video);
     card.appendChild(playBtn);
+    card.appendChild(muteBtn);
     card.appendChild(title);
     track.appendChild(card);
   });
@@ -300,18 +389,57 @@ async function initCarousel() {
   );
   cards.forEach((c) => lazyObserver.observe(c));
 
-  function playCard(card) {
+  function updateMuteIcon(muteBtn, video) {
+    muteBtn.innerHTML = renderMuteIcon(video.muted);
+    muteBtn.setAttribute(
+      "aria-label",
+      video.muted ? "Ativar som deste vídeo" : "Silenciar este vídeo"
+    );
+  }
+
+  // card = card recém-ativado (central). Só ele deve tentar tocar com som — os demais
+  // continuam mudos o tempo todo (ver pauseCard/updateActive).
+  function playCard(card, { withSound } = { withSound: false }) {
     const video = card.querySelector("video");
     const poster = card.querySelector("img.poster");
     const btn = card.querySelector(".play-btn");
+    const muteBtn = card.querySelector(".mute-btn");
     if (!video.src) video.src = video.dataset.src;
+
+    // Já houve interação real do usuário para navegar até este card (clique no
+    // gate, arraste/scroll do carrossel) — autoplay com som é uma extensão válida
+    // dessa ativação de usuário na maioria dos navegadores. Se ainda assim for
+    // bloqueado (política mais restrita), cai para mudo automaticamente e deixa
+    // o botão de som visível para o usuário ativar com um clique direto, que
+    // sempre é permitido.
+    video.muted = !withSound;
+
     video
       .play()
       .then(() => {
         poster.style.opacity = "0";
         btn.hidden = true;
+        if (muteBtn) {
+          muteBtn.hidden = false;
+          updateMuteIcon(muteBtn, video);
+        }
       })
       .catch(() => {
+        if (withSound && !video.muted) {
+          // Autoplay com som recusado: tenta de novo mudo (isso quase sempre é permitido).
+          video.muted = true;
+          video.play().then(() => {
+            poster.style.opacity = "0";
+            btn.hidden = true;
+            if (muteBtn) {
+              muteBtn.hidden = false;
+              updateMuteIcon(muteBtn, video);
+            }
+          }).catch(() => {
+            btn.hidden = false;
+          });
+          return;
+        }
         // Autoplay bloqueado (ex.: economia de dados): mantém poster + botão de play visível.
         btn.hidden = false;
       });
@@ -320,8 +448,11 @@ async function initCarousel() {
   function pauseCard(card) {
     const video = card.querySelector("video");
     const poster = card.querySelector("img.poster");
+    const muteBtn = card.querySelector(".mute-btn");
     video.pause();
+    video.muted = true; // card deixou de ser o ativo: volta a ficar mudo por padrão.
     poster.style.opacity = "1";
+    if (muteBtn) muteBtn.hidden = true;
   }
 
   function updateActive() {
@@ -344,7 +475,7 @@ async function initCarousel() {
       if (card === closest) {
         if (!card.classList.contains("is-active")) {
           card.classList.add("is-active");
-          playCard(card);
+          playCard(card, { withSound: true });
         }
       } else if (card.classList.contains("is-active")) {
         card.classList.remove("is-active");
@@ -388,12 +519,25 @@ async function initCarousel() {
     })
   );
 
-  // Clique no botão de play (fallback de autoplay bloqueado).
+  // Clique no botão de play (fallback de autoplay bloqueado) — o usuário está
+  // clicando diretamente no card, então já vale tentar com som.
   track.addEventListener("click", (e) => {
-    const btn = e.target.closest(".play-btn");
-    if (!btn) return;
-    const card = btn.closest(".carousel-card");
-    playCard(card);
+    const playBtnClicked = e.target.closest(".play-btn");
+    if (playBtnClicked) {
+      const card = playBtnClicked.closest(".carousel-card");
+      playCard(card, { withSound: true });
+      return;
+    }
+
+    // Clique no botão de som: alterna mudo/com som do card ativo. Isso acontece
+    // dentro de um handler de clique real, então o navegador sempre permite.
+    const muteBtnClicked = e.target.closest(".mute-btn");
+    if (muteBtnClicked) {
+      const card = muteBtnClicked.closest(".carousel-card");
+      const video = card.querySelector("video");
+      video.muted = !video.muted;
+      updateMuteIcon(muteBtnClicked, video);
+    }
   });
 
   // Centraliza o primeiro card e ativa.

@@ -40,6 +40,13 @@ img { max-width: 100%; display: block; }
   inset: 0;
   z-index: -2;
   overflow: hidden;
+  /* Força camada de composição própria (GPU) para esse elemento fixed com
+     z-index negativo. Sem isso, WebKit/iOS Safari tem um bug conhecido de
+     compositing onde um elemento fixed com z-index negativo, combinado com
+     outro elemento fixed usando backdrop-filter (o .header logo abaixo),
+     ocasionalmente renderiza como preto sólido em vez do conteúdo real. */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .bg-video {
@@ -49,6 +56,7 @@ img { max-width: 100%; display: block; }
   /* será deslocado via transform no scroll (parallax) e escrubado via JS (currentTime) */
   will-change: transform;
   filter: none; /* grade de cor final: pendente do colorista-master */
+  -webkit-transform: translateZ(0);
 }
 
 .bg-video-overlay {
@@ -138,6 +146,35 @@ img { max-width: 100%; display: block; }
 .nav a { font-size: 0.95rem; opacity: 0.85; white-space: nowrap; }
 .nav a:hover { opacity: 1; }
 
+/* Botão hambúrguer: só existe visualmente abaixo do breakpoint mobile (ver
+   media query mais abaixo). Em telas largas fica fora do fluxo e invisível. */
+.nav-toggle {
+  display: none;
+  position: relative;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.nav-toggle-bar {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--fg-light);
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(2) { opacity: 0; }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
 /* ---------- Hero ---------- */
 .hero {
   min-height: 100vh;
@@ -196,6 +233,36 @@ img { max-width: 100%; display: block; }
 }
 .glass-panel h2 { margin-top: 0; font-size: 1.8rem; }
 .glass-panel p { line-height: 1.7; font-size: 1.05rem; color: var(--fg-muted); margin-bottom: 0; }
+
+/* Bloco "Sobre nós" quebrado em partes menores com respiro entre elas, em vez
+   de um parágrafo único e denso — cada bloco pode ter um rótulo curto acima
+   (ex.: "Como trabalhamos") para escanear mais rápido em tela pequena. */
+.sobre-bloco + .sobre-bloco {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.sobre-rotulo {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.sobre-destaque {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--fg-light);
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 640px) {
+  .sobre-bloco + .sobre-bloco { margin-top: 22px; padding-top: 22px; }
+  .sobre-destaque { font-size: 1.15rem; }
+}
 
 /* ---------- Serviços ---------- */
 .servicos-grid {
@@ -415,6 +482,29 @@ img { max-width: 100%; display: block; }
 .carousel-card .play-btn svg { width: 46px; height: 46px; }
 .carousel-card .play-btn[hidden] { display: none; }
 
+/* Botão de som: só aparece no card ativo (JS controla o hidden). Fica no
+   canto inferior direito — o canto superior fica atrás do header fixo
+   (z-index maior) quando o card está perto do topo da viewport, então o topo
+   não é uma posição segura aqui. */
+.carousel-card .mute-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.carousel-card .mute-btn svg { width: 18px; height: 18px; }
+.carousel-card .mute-btn[hidden] { display: none; }
+
 .carousel-card .card-title {
   position: absolute;
   left: 0; right: 0; bottom: 0;
@@ -461,22 +551,65 @@ img { max-width: 100%; display: block; }
 }
 
 /* ---------- Responsividade mobile ---------- */
+/* Abaixo de 760px a nav em linha não cabe mais sem colidir com o símbolo
+   centralizado (medido via Puppeteer: overlap real em 375px e 390px com a
+   nav completa). Em vez de tentar encolher texto até caber por sorte, a nav
+   vira um menu hambúrguer: some do fluxo do header (não há mais nada para
+   colidir com o símbolo) e reaparece como painel solto abaixo do header
+   quando o usuário abre. */
+@media (max-width: 760px) {
+  .header-inner { justify-content: flex-end; }
+  .nav-toggle { display: flex; }
+
+  .nav {
+    position: fixed;
+    top: var(--header-h);
+    left: 14px;
+    right: 14px;
+    z-index: 99;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    padding: 10px;
+    margin-top: 8px;
+    background: rgba(10, 12, 16, 0.92);
+    -webkit-backdrop-filter: blur(22px) saturate(1.6);
+    backdrop-filter: blur(22px) saturate(1.6);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    transform: translateY(-12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .nav.is-open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .nav a {
+    font-size: 1rem;
+    padding: 12px 10px;
+    border-radius: 10px;
+    opacity: 1;
+  }
+  .nav a:hover, .nav a:focus-visible { background: rgba(255, 255, 255, 0.08); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav { transition: none; }
+  }
+}
+
 @media (max-width: 640px) {
   :root { --header-h: 64px; }
   .header-inner { padding: 0 14px; }
   .logo-img { height: 40px; max-width: 38vw; }
-  .nav { gap: 10px; }
-  .nav a { font-size: 0.72rem; }
   .hero { gap: 20px; }
   .section { padding: 64px 16px; }
   .glass-panel { padding: 28px 22px; }
   .gate-box { padding: 26px 20px; max-width: 100%; }
   .carousel-card { width: 62vw; margin: 0 -14px; }
   .footer { padding: 48px 16px; }
-}
-
-@media (max-width: 480px) {
-  .nav a[href="#contato"] { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
