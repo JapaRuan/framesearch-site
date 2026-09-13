@@ -34,6 +34,7 @@
     <nav class="nav" aria-label="Navegação principal">
       <a href="#sobre">Sobre</a>
       <a href="#servicos">Serviços</a>
+      <a href="#depoimentos">Depoimentos</a>
       <a href="#portfolio">Portfólio</a>
       <a href="#contato">Contato</a>
     </nav>
@@ -50,7 +51,7 @@
 
   <!-- SOBRE — Liquid Glass -->
   <section id="sobre" class="section sobre">
-    <div class="glass glass-panel">
+    <div class="glass glass-panel" data-reveal>
       <h2>Sobre nós</h2>
       <p>
         FrameSearch nasce do encontro entre olhar cinematográfico e ritmo de internet.
@@ -80,48 +81,80 @@
 
   <!-- SERVIÇOS — Liquid Glass -->
   <section id="servicos" class="section servicos">
-    <h2 class="section-title">Serviços</h2>
-    <div class="servicos-grid">
+    <h2 class="section-title" data-reveal>Serviços</h2>
+    <div class="servicos-grid" data-reveal-group>
 
-      <div class="glass servico-card">
+      <div class="glass servico-card" data-reveal>
         <h3>Fotografia</h3>
         <p>Captação de imagem estática para marca, produto e evento — com o mesmo olhar
         de direção de arte que aplicamos em vídeo.</p>
         <div class="glass-specular" aria-hidden="true"></div>
       </div>
 
-      <div class="glass servico-card">
+      <div class="glass servico-card" data-reveal>
         <h3>Filmagem</h3>
         <p>Captação em vídeo com equipamento e equipe dedicados, do institucional ao
         conteúdo pensado direto para redes sociais.</p>
         <div class="glass-specular" aria-hidden="true"></div>
       </div>
 
-      <div class="glass servico-card">
+      <div class="glass servico-card" data-reveal>
         <h3>Edição</h3>
         <p>Corte, ritmo, cor e som trabalhados para prender atenção nos primeiros
         segundos e sustentar a mensagem até o final da peça.</p>
         <div class="glass-specular" aria-hidden="true"></div>
       </div>
 
-      <div class="glass servico-card">
+      <div class="glass servico-card" data-reveal>
         <h3>Design</h3>
         <p>Direção de arte e identidade visual aplicada à peça — do grafismo dentro do
         vídeo à consistência visual entre canais.</p>
         <div class="glass-specular" aria-hidden="true"></div>
       </div>
 
-      <div class="glass servico-card">
+      <div class="glass servico-card" data-reveal>
         <h3>Tráfego pago</h3>
         <p>Gestão de campanha em Meta Ads e Google Ads pensada junto com a peça, não
         depois dela — para o conteúdo já nascer pronto para performar.</p>
         <div class="glass-specular" aria-hidden="true"></div>
       </div>
 
-      <div class="glass servico-card">
+      <div class="glass servico-card" data-reveal>
         <h3>Programação</h3>
         <p>Desenvolvimento de site e sistemas sob medida para sustentar a presença
         digital da marca além do vídeo — como este próprio site.</p>
+        <div class="glass-specular" aria-hidden="true"></div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DEPOIMENTOS — prova social sem nome inventado.
+       Estrutura pensada para trocar por vídeo depois: cada .depoimento-card vira um
+       <video> real no lugar do <blockquote>, mantendo a mesma classe/grid. -->
+  <section id="depoimentos" class="section depoimentos">
+    <h2 class="section-title" data-reveal>O que dizem sobre o trabalho</h2>
+    <div class="depoimentos-grid" data-reveal-group>
+
+      <div class="glass depoimento-card" data-reveal>
+        <blockquote>“O vídeo trouxe muito mais engajamento do que a gente esperava — e
+        ficou exatamente com a nossa cara.”</blockquote>
+        <cite>— dono de restaurante, cliente Frame Search</cite>
+        <div class="glass-specular" aria-hidden="true"></div>
+      </div>
+
+      <div class="glass depoimento-card" data-reveal>
+        <blockquote>“Fechamos com a Frame Search pelo primeiro vídeo que vimos e não
+        precisamos nem pedir ajustes — já entregaram exatamente o ritmo que a gente
+        queria.”</blockquote>
+        <cite>— dono de barbearia, cliente Frame Search</cite>
+        <div class="glass-specular" aria-hidden="true"></div>
+      </div>
+
+      <div class="glass depoimento-card" data-reveal>
+        <blockquote>“Deu para sentir a diferença entre um vídeo feito só para postar e
+        um vídeo pensado para performar. O resultado apareceu no tráfego pago.”</blockquote>
+        <cite>— gestora de marketing, cliente Frame Search</cite>
         <div class="glass-specular" aria-hidden="true"></div>
       </div>
 

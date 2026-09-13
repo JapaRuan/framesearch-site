@@ -79,6 +79,48 @@ let carouselInitialized = false;
   );
 })();
 
+// ---------- Scroll-reveal: fade/slide um bloco de cada vez ao rolar ----------
+(function scrollReveal() {
+  const reveals = Array.from(document.querySelectorAll("[data-reveal]"));
+  if (!reveals.length) return;
+
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Itens dentro do mesmo grupo (ex.: os cards de .servicos-grid) recebem um
+  // atraso incremental via custom property, para aparecer em sequência (stagger)
+  // em vez de todos ao mesmo tempo assim que o grupo entra na viewport.
+  const grupos = new Map();
+  reveals.forEach((el) => {
+    const grupo = el.closest("[data-reveal-group]") || el;
+    if (!grupos.has(grupo)) grupos.set(grupo, []);
+    grupos.get(grupo).push(el);
+  });
+  grupos.forEach((itens) => {
+    itens.forEach((el, i) => {
+      el.style.setProperty("--reveal-delay", prefersReducedMotion ? "0ms" : `${i * 90}ms`);
+    });
+  });
+
+  if (prefersReducedMotion) {
+    // Sem animação de verdade: mostra tudo de imediato, sem esperar scroll.
+    reveals.forEach((el) => el.classList.add("is-visible"));
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    (entries, obs) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          obs.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.15, rootMargin: "0px 0px -60px 0px" }
+  );
+  reveals.forEach((el) => observer.observe(el));
+})();
+
 // ---------- Validação de formulário (espelha server/validators.js) ----------
 function validarNomeClient(nome) {
   const n = (nome || "").trim().replace(/\s+/g, " ");
