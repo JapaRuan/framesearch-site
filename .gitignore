@@ -4,3 +4,5 @@ server/data/
 npm-debug.log
 desktop.ini
 node_modules/
+server/firebase-service-account.json
+*firebase-adminsdk*.json
