@@ -31,10 +31,10 @@
      congelado, a imagem para de "respirar" e vira uma textura
      fixa).
 
-   COR: propositalmente neutra/placeholder (tons de cinza em torno
-   de --bg-dark). Decisão de paleta final (intensidade, saturação,
-   temperatura) é do Colorista Master — ver README, seção
-   "Pendências para o colorista-master". Não decidir isso aqui.
+   COR: decidida pelo Colorista Master — champagne/marfim quente
+   (#F2EDE3) em repouso, clareando para pêssego-âmbar (#EDCCAD,
+   laranja de marca clareado) nos picos do ruído. Ver README para a
+   justificativa completa (emoção pretendida, cálculo de contraste).
 
    Performance: canvas renderizado em resolução reduzida
    (RENDER_SCALE) e escalado via CSS (upscale), técnica padrão para
@@ -147,8 +147,8 @@
 
       // Paleta neutra/placeholder em torno do fundo escuro da marca —
       // decisão de cor final é do Colorista Master.
-      vec3 corBase = vec3(0.03, 0.035, 0.045);
-      vec3 corAlta = vec3(0.16, 0.165, 0.175);
+      vec3 corBase = vec3(0.95, 0.93, 0.89); // ~#F2EDE3 - champagne/marfim quente, estado de repouso
+      vec3 corAlta = vec3(0.93, 0.80, 0.68); // ~#EDCCAD - pêssego-âmbar, laranja de marca clareado, só nos picos do ruído
       vec3 cor = mix(corBase, corAlta, pattern);
 
       gl_FragColor = vec4(cor, 1.0);

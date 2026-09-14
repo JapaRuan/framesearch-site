@@ -71,8 +71,8 @@
   --bg-dark: #05070a;
   --fg-light: #f3f4f6;
   --fg-muted: rgba(243, 244, 246, 0.7);
-  --accent: #e9c46a; /* placeholder neutro — paleta final é do identidade-visual-padrao/colorista */
-  --glass-bg: rgba(15, 17, 22, 0.45);
+  --accent: #FCDEBB; /* laranja de marca (#BF632B) clareado para leitura sobre glass escuro — contraste ~9:1, decidido pelo colorista-master */
+  --glass-bg: rgba(10, 12, 16, 0.80); /* subiu de 0.45 — fundo do shader ficou claro, precisa de mais opacidade pra manter contraste do texto branco dentro do glass */
   --glass-border: rgba(255, 255, 255, 0.18);
   --glass-highlight: rgba(255, 255, 255, 0.55);
   --header-h: 76px;
@@ -132,13 +132,13 @@ img { max-width: 100%; display: block; }
   display: block;
   width: 100% !important;
   height: 100% !important;
-  filter: none; /* grade de cor final: pendente do colorista-master */
+  filter: none;
 }
 
 .bg-video-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(5,7,10,0.35) 0%, rgba(5,7,10,0.65) 100%);
+  background: linear-gradient(180deg, rgba(20,14,8,0.05) 0%, rgba(20,14,8,0.14) 100%);
   pointer-events: none;
 }
 
@@ -273,7 +273,8 @@ img { max-width: 100%; display: block; }
   max-width: 100%;
   min-width: 0;
   overflow-wrap: break-word;
-  text-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  color: var(--bg-dark);
+  text-shadow: 0 2px 20px rgba(255, 250, 240, 0.5);
 }
 
 .btn {
@@ -302,6 +303,8 @@ img { max-width: 100%; display: block; }
   text-align: center;
   font-size: clamp(1.8rem, 4vw, 2.6rem);
   margin-bottom: 48px;
+  color: var(--bg-dark);
+  text-shadow: 0 2px 20px rgba(255, 250, 240, 0.5);
 }
 
 /* ---------- Sobre ---------- */
@@ -657,7 +660,7 @@ img { max-width: 100%; display: block; }
 .carousel-hint {
   text-align: center;
   font-size: 0.8rem;
-  color: var(--fg-muted);
+  color: rgba(5, 7, 10, 0.65);
   margin-top: -12px;
 }
 
