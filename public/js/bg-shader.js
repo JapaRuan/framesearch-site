@@ -65,10 +65,25 @@
     varying vec2 vTexCoord;
 
     void main() {
-      // p5 WEBGL entrega aPosition já em clip space (-1..1) para uma tela
-      // cheia quando desenhada via p.rect() ocupando o canvas inteiro.
-      vTexCoord = aPosition.xy * 0.5 + 0.5;
-      gl_Position = vec4(aPosition, 1.0);
+      // CAUSA RAIZ REAL do retângulo com borda dura visível no fundo (bug
+      // encontrado em produção, confirmado via screenshot + dump do buffer
+      // WebGL cru): para o quad de tela cheia desenhado com p.rect() em
+      // WEBGL, o p5.js entrega aPosition já NORMALIZADO em 0..1 (coordenada
+      // local do próprio quad), não em clip space (-1..1) e não nas
+      // dimensões reais em pixel do canvas — isso é documentado no próprio
+      // tutorial oficial de shaders do p5.js (archive.p5js.org/learn/
+      // getting-started-in-webgl-shaders.html).
+      //
+      // A versão anterior fazia gl_Position = vec4(aPosition, 1.0) direto,
+      // sem remapear 0..1 para -1..1. Resultado: só a região onde
+      // 0 <= x,y <= 1 caía dentro do volume de clipping (-1..1) e era
+      // rasterizada — ou seja, só um quadrante do canvas desenhava algo; o
+      // resto ficava com o clear color, e a borda entre os dois é o corte
+      // reto visível no fundo.
+      vTexCoord = aPosition.xy; // já é 0..1 — serve direto como UV.
+      vec4 positionVec4 = vec4(aPosition, 1.0);
+      positionVec4.xy = positionVec4.xy * 2.0 - 1.0; // remapeia 0..1 -> -1..1
+      gl_Position = positionVec4;
     }
   `;
 
@@ -180,6 +195,11 @@
       myShader.setUniform("u_resolution", [p.width, p.height]);
       myShader.setUniform("u_phase", phase);
       myShader.setUniform("u_amplitude", Math.min(1, amplitude));
+      // Retângulo do tamanho do canvas inteiro — o valor em pixels aqui não
+      // importa para o clip space (o vertex shader remapeia o aPosition
+      // 0..1 que o p5 entrega, não usa estes números diretamente); mantido
+      // igual ao canvas só para não desenhar geometria fora da área visível
+      // por engano em nenhum outro lugar que dependa de p.width/height.
       p.rect(-p.width / 2, -p.height / 2, p.width, p.height);
 
       if (amplitude < AMPLITUDE_EPS && isLooping) {
